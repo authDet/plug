@@ -1,3 +1,9 @@
+/*!***************************************************
+* mark.js v9.0.0
+* https://markjs.io/
+* Copyright (c) 2014–2018, Julian Kühnel
+* Released under the MIT license https://git.io/vwTVl
+*****************************************************/
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):e.Mark=t()}(this,function(){"use strict";function e(t){return(e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(t)}function t(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function n(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}function r(e,t,r){return t&&n(e.prototype,t),r&&n(e,r),e}function o(){return(o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var r in n)Object.prototype.hasOwnProperty.call(n,r)&&(e[r]=n[r])}return e}).apply(this,arguments)}var i=
 /* */
 function(){function e(n){var r=!(arguments.length>1&&void 0!==arguments[1])||arguments[1],o=arguments.length>2&&void 0!==arguments[2]?arguments[2]:[],i=arguments.length>3&&void 0!==arguments[3]?arguments[3]:5e3;t(this,e),this.ctx=n,this.iframes=r,this.exclude=o,this.iframesTimeout=i}return r(e,[{key:"getContexts",value:function(){var e=[];return(void 0!==this.ctx&&this.ctx?NodeList.prototype.isPrototypeOf(this.ctx)?Array.prototype.slice.call(this.ctx):Array.isArray(this.ctx)?this.ctx:"string"==typeof this.ctx?Array.prototype.slice.call(document.querySelectorAll(this.ctx)):[this.ctx]:[]).forEach(function(t){var n=e.filter(function(e){return e.contains(t)}).length>0;-1!==e.indexOf(t)||n||e.push(t)}),e}},{key:"getIframeContents",value:function(e,t){var n,r=arguments.length>2&&void 0!==arguments[2]?arguments[2]:function(){};try{var o=e.contentWindow;if(n=o.document,!o||!n)throw new Error("iframe inaccessible")}catch(e){r()}n&&t(n)}},{key:"isIframeBlank",value:function(e){var t="about:blank",n=e.getAttribute("src").trim();return e.contentWindow.location.href===t&&n!==t&&n}},{key:"observeIframeLoad",value:function(e,t,n){var r=this,o=!1,i=null,a=function a(){if(!o){o=!0,clearTimeout(i);try{r.isIframeBlank(e)||(e.removeEventListener("load",a),r.getIframeContents(e,t,n))}catch(e){n()}}};e.addEventListener("load",a),i=setTimeout(a,this.iframesTimeout)}},{key:"onIframeReady",value:function(e,t,n){try{"complete"===e.contentWindow.document.readyState?this.isIframeBlank(e)?this.observeIframeLoad(e,t,n):this.getIframeContents(e,t,n):this.observeIframeLoad(e,t,n)}catch(e){n()}}},{key:"waitForIframes",value:function(e,t){var n=this,r=0;this.forEachIframe(e,function(){return!0},function(e){r++,n.waitForIframes(e.querySelector("html"),function(){--r||t()})},function(e){e||t()})}},{key:"forEachIframe",value:function(t,n,r){var o=this,i=arguments.length>3&&void 0!==arguments[3]?arguments[3]:function(){},a=t.querySelectorAll("iframe"),s=a.length,c=0;a=Array.prototype.slice.call(a);var u=function(){--s<=0&&i(c)};s||u(),a.forEach(function(t){e.matches(t,o.exclude)?u():o.onIframeReady(t,function(e){n(t)&&(c++,r(e)),u()},u)})}},{key:"createIterator",value:function(e,t,n){return document.createNodeIterator(e,t,n,!1)}},{key:"createInstanceOnIframe",value:function(t){return new e(t.querySelector("html"),this.iframes)}},{key:"compareNodeIframe",value:function(e,t,n){if(e.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_PRECEDING){if(null===t)return!0;if(t.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_FOLLOWING)return!0}return!1}},{key:"getIteratorNode",value:function(e){var t=e.previousNode();return{prevNode:t,node:null===t?e.nextNode():e.nextNode()&&e.nextNode()}}},{key:"checkIframeFilter",value:function(e,t,n,r){var o=!1,i=!1;return r.forEach(function(e,t){e.val===n&&(o=t,i=e.handled)}),this.compareNodeIframe(e,t,n)?(!1!==o||i?!1===o||i||(r[o].handled=!0):r.push({val:n,handled:!0}),!0):(!1===o&&r.push({val:n,handled:!1}),!1)}},{key:"handleOpenIframes",value:function(e,t,n,r){var o=this;e.forEach(function(e){e.handled||o.getIframeContents(e.val,function(e){o.createInstanceOnIframe(e).forEachNode(t,n,r)})})}},{key:"iterateThroughNodes",value:function(e,t,n,r,o){for(var i,a,s,c=this,u=this.createIterator(t,e,r),l=[],h=[];s=void 0,s=c.getIteratorNode(u),a=s.prevNode,i=s.node;)this.iframes&&this.forEachIframe(t,function(e){return c.checkIframeFilter(i,a,e,l)},function(t){c.createInstanceOnIframe(t).forEachNode(e,function(e){return h.push(e)},r)}),h.push(i);h.forEach(function(e){n(e)}),this.iframes&&this.handleOpenIframes(l,e,n,r),o()}},{key:"forEachNode",value:function(e,t,n){var r=this,o=arguments.length>3&&void 0!==arguments[3]?arguments[3]:function(){},i=this.getContexts(),a=i.length;a||o(),i.forEach(function(i){var s=function(){r.iterateThroughNodes(e,i,t,n,function(){--a<=0&&o()})};r.iframes?r.waitForIframes(i,s):s()})}}],[{key:"matches",value:function(e,t){var n="string"==typeof t?[t]:t,r=e.matches||e.matchesSelector||e.msMatchesSelector||e.mozMatchesSelector||e.oMatchesSelector||e.webkitMatchesSelector;if(r){var o=!1;return n.every(function(t){return!r.call(e,t)||(o=!0,!1)}),o}return!1}}]),e}(),a=
@@ -68,19 +74,13 @@ document.querySelector('input[name="searchText"]').addEventListener('input', fun
 
 window.searchNext = function () {
     var markElements = document.querySelectorAll('.monaco-editor-wrapper.layout-content.editor mark');
-    if (markElements.length === 0) return;
     if (currentSelectedMarkIndex >= markElements.length) {
         currentSelectedMarkIndex = 0;
     }
     markElements.forEach(function(element, index, array) {
         if(currentSelectedMarkIndex == index) {
     	    element.classList.add('selected');
-			// محاولة التمرير بطرق متعددة (fallbacks)
-			if (typeof element.scrollIntoViewIfNeeded === 'function') {
-				element.scrollIntoViewIfNeeded();
-			} else {
-				try { element.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) { element.scrollIntoView(); }
-			}
+			element.scrollIntoViewIfNeeded();
         } else {
             element.classList.remove('selected');
         }
@@ -92,8 +92,7 @@ window.searchNext = function () {
 document.querySelector('button[data-search="search"]').addEventListener('click', searchNext);
 
 window.resetSearch = function () {
-    var inp = document.querySelector('input[name="searchText"]');
-    if (inp) inp.value = '';
+    document.querySelector('input[name="searchText"]').value = '';
     search('');
 };
 
@@ -101,31 +100,23 @@ document.querySelector('button[data-search="clear"]').addEventListener('click', 
 
 document.onkeyup = function(event) {
     if (event.ctrlKey && event.shiftKey && event.which == 70) {
-        var inp = document.querySelector('input[name="searchText"]');
-        if (inp) inp.select();
+        document.querySelector('input[name="searchText"]').select();
     }
 };
 
-// helper to check if a node is the Monaco editor wrapper
-function isEditorNode(n) {
-    return n && n.classList && n.classList.contains('monaco-editor-wrapper') && n.classList.contains('layout-content') && n.classList.contains('editor');
-}
-
 var mutationObserver = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
-        // show the search box if the user is in preview/edit mode within Monaco wrapper
-        if (mutation.addedNodes && mutation.addedNodes[0] && isEditorNode(mutation.addedNodes[0])) {
-            markInstance = new Mark(document.querySelector('.monaco-editor-wrapper.layout-content.editor'));
+        // show the search box if the user is in preview mode
+        if (mutation.addedNodes[0] && mutation.addedNodes[0].length != 0 && mutation.addedNodes[0].className == 'layout-content preview ') {
+            markInstance = new Mark(document.querySelector('.layout-content.preview'));
             resetSearch();
-            var el = document.querySelector('.search-text-js');
-            if (el) el.hidden = false;
-        // hide the search box if removed
-        } else if (mutation.removedNodes && mutation.removedNodes[0] && isEditorNode(mutation.removedNodes[0])) {
+            document.querySelector('.search-text-js').hidden = false;
+        // hide the search box if the user is in edit mode
+        } else if (mutation.removedNodes[0] && mutation.removedNodes[0].length != 0 && mutation.removedNodes[0].className == 'layout-content preview ') {
             resetSearch();
-            var el2 = document.querySelector('.search-text-js');
-            if (el2) el2.hidden = true;
-        // clear search box if user loaded a new document (target changed)
-        } else if (isEditorNode(mutation.target)) {
+            document.querySelector('.search-text-js').hidden = true;
+        // clear search box if user loaded a new document
+        } else if (mutation.target && mutation.target.className && mutation.target.className == 'layout-content preview ') {
             resetSearch();
         }
     });
