@@ -1,3 +1,66 @@
+// Load lazy plug
+(function () {
+  // LazyRenderer Plugin
+  class LazyRenderer {
+    constructor(containerSelector, itemSelector, batchSize = 20) {
+      this.container = document.querySelector(containerSelector);
+      this.itemSelector = itemSelector;
+      this.batchSize = batchSize;
+      this.items = Array.from(document.querySelectorAll(itemSelector));
+      this.renderedCount = 0;
+
+      if (!this.container || this.items.length === 0) {
+        console.warn("⚠️ LazyRenderer: لم يتم العثور على العناصر المطلوبة");
+        return;
+      }
+
+      // أخفي كل العناصر في البداية
+      this.items.forEach(item => item.style.display = "none");
+
+      // تحميل الدفعة الأولى
+      this.loadMore();
+
+      // مراقبة التمرير
+      this.onScroll = this.onScroll.bind(this);
+      window.addEventListener("scroll", this.onScroll);
+    }
+
+    loadMore() {
+      const nextBatch = this.items.slice(this.renderedCount, this.renderedCount + this.batchSize);
+      nextBatch.forEach(item => item.style.display = "block");
+      this.renderedCount += nextBatch.length;
+
+      // إذا انتهت كل العناصر -> أوقف المراقبة
+      if (this.renderedCount >= this.items.length) {
+        window.removeEventListener("scroll", this.onScroll);
+      }
+    }
+
+    onScroll() {
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 50) {
+        // وصلنا أسفل الصفحة → حمل دفعة جديدة
+        this.loadMore();
+      }
+    }
+  }
+
+  // اجعل الـ Plugin متاح للاستخدام العام
+  window.LazyRenderer = LazyRenderer;
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ----- Search plugin (تصحيح) -----
 // افترض أن مكتبة mark.js محمّلة قبل هذا السكربت
 (function(){
